@@ -10,10 +10,10 @@ namespace Player
     public class Rocket : MonoBehaviour
     {
         private Rigidbody _rigidbody;
-        private RocketInputService _inputService;
+        private IRocketInputService _inputService;
 
         [Inject]
-        public void Construct(RocketInputService inputService)
+        public void Construct(IRocketInputService inputService)
         {
             _inputService = inputService;
         }
@@ -39,7 +39,7 @@ namespace Player
 
         private void RotateFactorChangeHandle(float rotateFactor)
         {
-
+            transform.position = new Vector3(rotateFactor, transform.position.y, transform.position.z);
         }
 
         private void OnDestroy()

@@ -6,17 +6,14 @@ namespace MonoInstallers
 {
     public class GameSceneInstaller : MonoInstaller
     {
-        [SerializeField] private RocketInputService _inputServicePrefab;
-
         public override void InstallBindings()
         {
-            BindInputService();
+            BindMobileInputService();
         }
 
-        private void BindInputService()
+        private void BindMobileInputService()
         {
-            RocketInputService inputService = Container.InstantiatePrefabForComponent<RocketInputService>(_inputServicePrefab);
-            Container.Bind<RocketInputService>().FromInstance(inputService).AsSingle();
+            Container.BindInterfacesTo<MobileRocketInputService>().FromNew().AsSingle();
         }
     }
 }
