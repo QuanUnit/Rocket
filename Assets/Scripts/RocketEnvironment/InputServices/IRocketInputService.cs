@@ -1,6 +1,6 @@
 using System;
 
-namespace Player
+namespace RocketEnvironment.InputServices
 {
     public interface IRocketInputService
     {
