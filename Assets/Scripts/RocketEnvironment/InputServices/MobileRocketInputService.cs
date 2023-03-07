@@ -1,9 +1,8 @@
 using System;
-using TMPro;
 using UnityEngine;
 using Zenject;
 
-namespace Player
+namespace RocketEnvironment.InputServices
 {
     public class MobileRocketInputService : IRocketInputService, ITickable
     {
@@ -68,7 +67,8 @@ namespace Player
             
             float xDelta = touchPosition.x - _cachedTouchPosition.Value.x;
             _cachedTouchPosition = touchPosition;
-            RotateFactor += (xDelta / Screen.width);
+            float halfFactor = xDelta / Screen.width;
+            RotateFactor += halfFactor * 2;
         }
     }
 }
