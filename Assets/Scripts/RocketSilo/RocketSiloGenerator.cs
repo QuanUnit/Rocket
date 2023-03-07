@@ -1,39 +1,43 @@
+using RocketEnvironment;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 using Random = UnityEngine.Random;
 
 namespace RocketSilo
 {
     public class RocketSiloGenerator : MonoBehaviour
     {
-        [SerializeField] private Transform _rocket;
         [SerializeField][Min(0)] private float _rearrangeChunkDistance = 10f;
         [SerializeField][Min(1)] private int _extensionChunkStep;
-        [SerializeField] private RocketSiloChunk[] _preparedChunks;
+        [SerializeField][Range(0, 1)] private float _minExtensionChunkValue = 0.3f;
 
         private Queue<RocketSiloChunk> _chunksQueue;
         private long _chunkCounter;
-        
+        private Rocket _rocket;
+
+        [Inject]
+        public void Construct(Rocket rocket)
+        {
+            _rocket = rocket;
+        }
+
         private void Awake()
         {
-            if (_preparedChunks == null || _preparedChunks.Length == 0)
-            {
-                Debug.LogError("Prepared chunks of the rocket silo are not defined");
-                return;
-            }
-            
-            _chunksQueue = new Queue<RocketSiloChunk>(_preparedChunks);
+            RocketSiloChunk[] preparedChunks = GetComponentsInChildren<RocketSiloChunk>();
+            _chunksQueue = new Queue<RocketSiloChunk>(preparedChunks);
         }
 
         private void FixedUpdate()
         {
-            Vector3 lastChunkPosition = _chunksQueue.Peek().transform.position;
-            Debug.Log(lastChunkPosition);
-            float lastChunkDistance = _rocket.position.y - lastChunkPosition.y;
+            RocketSiloChunk lastChunk = _chunksQueue.Peek();
+            Vector3 lastChunkPosition = lastChunk.transform.position;
 
-            if (lastChunkDistance >= _rearrangeChunkDistance)
+            float distance = _rocket.transform.position.y - lastChunkPosition.y;
+
+            if (distance >= _rearrangeChunkDistance)
             {
                 RearrangeLastChunk();
             }
@@ -43,18 +47,21 @@ namespace RocketSilo
         {
             _chunkCounter++;
             
-            RocketSiloChunk chunk = _chunksQueue.Dequeue();
-            ResetChunk(chunk);
+            RocketSiloChunk lastChunk = _chunksQueue.Dequeue();
+            ResetChunk(lastChunk);
             
             if (_chunkCounter % _extensionChunkStep == 0)
             {
-                SetRandomConfigureChuck(chunk);
+                SetRandomConfigureChuck(lastChunk);
             }
 
-            float additiveY = (_chunksQueue.Count - 1) * chunk.ChuckHeight;
-            chunk.transform.position += new Vector3(0, additiveY, 0);
+            float additiveY = (_chunksQueue.Count + 1) * lastChunk.ChuckHeight;
+            lastChunk.transform.position += new Vector3(0, additiveY, 0);
             
-            _chunksQueue.Enqueue(chunk);
+            _chunksQueue.Enqueue(lastChunk);
+
+            lastChunk = _chunksQueue.Peek();
+            SetChuckAsSafeLine(lastChunk);
         }
 
         private void ResetChunk(RocketSiloChunk chunk)
@@ -68,7 +75,13 @@ namespace RocketSilo
             bool left = Random.Range(0, 2) == 0;
 
             RocketSiloBox box = left ? chunk.LeftBox : chunk.RightBox;
-            box.ExtensionValue = Random.value;
+            box.ExtensionValue = Random.Range(_minExtensionChunkValue, 1);
+        }
+
+        private void SetChuckAsSafeLine(RocketSiloChunk chunk)
+        {
+            chunk.LeftBox.ExtensionValue = 1;
+            chunk.RightBox.ExtensionValue = 1;
         }
     }
 }

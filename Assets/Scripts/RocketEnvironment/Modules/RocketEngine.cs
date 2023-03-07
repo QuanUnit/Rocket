@@ -7,6 +7,8 @@ namespace RocketEnvironment.Modules
         private float _acceleration;
         private float _maxVelocity;
 
+        private float _velocity;
+
         public RocketEngine(Rocket owner, float acceleration, float maxVelocity, bool isActive = true) : base(owner, isActive)
         {
             _acceleration = acceleration;
@@ -20,7 +22,7 @@ namespace RocketEnvironment.Modules
 
         private void ApplyAcceleration()
         {
-            Vector3 direction = Rigidbody.transform.up;
+            Vector3 direction = Owner.transform.up;
 
             Rigidbody.velocity += direction * _acceleration;
 

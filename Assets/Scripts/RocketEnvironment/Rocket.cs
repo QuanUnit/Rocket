@@ -76,8 +76,7 @@ namespace RocketEnvironment
         private void EnablePhysics()
         {
             _rigidbody.constraints =
-                RigidbodyConstraints.FreezePositionZ |
-                RigidbodyConstraints.FreezeRotationX;
+                RigidbodyConstraints.FreezePositionZ;
         }
 
         private void DisalePhysics()
